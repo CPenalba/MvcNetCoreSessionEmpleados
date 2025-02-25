@@ -9,6 +9,7 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
+
 string connectionString = builder.Configuration.GetConnectionString("SqlHospital");
 builder.Services.AddTransient<RepositoryEmpleados>();
 builder.Services.AddDbContext<HospitalContext>(options => options.UseSqlServer(connectionString));

@@ -18,8 +18,9 @@ namespace MvcNetCoreSessionEmpleados.Controllers
         {
             if (salario != null)
             {
-                //NECESITAMOS ALMACENAR EL SALARIO DEL EMPLEADO Y LA SUMA TOTAL DE SALARIOS QUE TENGAMOS 
+                //NECESITAMOS ALMACENAR EL SALARIO DEL EMPLEADO Y LA SUMA TOTAL DE SALARIOS QUE TENGAMOS
                 int sumaSalarial = 0;
+                //PREGUNTAMOS SI YA TENEMOS LA SUMA ALMACENADA EN SESSION
                 if (HttpContext.Session.GetString("SUMASALARIAL") != null)
                 {
                     //SI YA EXISTE LA SUMA SALARIAL, RECUPERAMOS SU VALOR
@@ -27,7 +28,7 @@ namespace MvcNetCoreSessionEmpleados.Controllers
                 }
                 //REALIZAMOS LA SUMA
                 sumaSalarial += salario.Value;
-                //ALAMACENAMOS EL NUEVO VALOR DE LA SUMA SALARIAL DENTRO DE SESSION
+                //ALMACENAMOS EL NUEVO VALOR DE LA SUMA SALARIAL DENTRO DE SESSION
                 HttpContext.Session.SetObject("SUMASALARIAL", sumaSalarial);
                 ViewData["MENSAJE"] = "Salario almacenado: " + salario.Value;
             }
@@ -77,7 +78,7 @@ namespace MvcNetCoreSessionEmpleados.Controllers
         {
             if (idEmpleado != null)
             {
-                //ALMACENAREMOS LO MINIMO QUE PODAMOS (INT)
+                //ALMACENAREMOS LO MINIMO QUE PODAMOS (int)
                 List<int> idsEmpleados;
                 if (HttpContext.Session.GetObject<List<int>>("IDSEMPLEADOS") == null)
                 {
@@ -104,7 +105,7 @@ namespace MvcNetCoreSessionEmpleados.Controllers
             List<int> idsEmpleados = HttpContext.Session.GetObject<List<int>>("IDSEMPLEADOS");
             if (idsEmpleados == null)
             {
-                ViewData["MENSAJE"] = "No existen empleados almacenados en Session.";
+                ViewData["MENSAJE"] = "No existen empleados almacenados " + " en Session.";
                 return View();
             }
             else
@@ -163,6 +164,49 @@ namespace MvcNetCoreSessionEmpleados.Controllers
                 List<Empleado> empleados = await this.repo.GetEmpleadosSessionAsync(idsEmpleados);
                 return View(empleados);
             }
+        }
+
+        public async Task<IActionResult> SessionEmpleadosV5(int? idEmpleado)
+        {
+
+            if (idEmpleado != null)
+            {
+                //ALMACENAREMOS LO MINIMO QUE PODAMOS (int)
+                List<int> idsEmpleados;
+                if (HttpContext.Session.GetObject<List<int>>("IDSEMPLEADOS") == null)
+                {
+                    //NO EXISTE Y CREAMOS LA COLECCION
+                    idsEmpleados = new List<int>();
+                }
+                else
+                {
+                    //EXISTE Y RECUPERAMOS LA COLECCION
+                    idsEmpleados = HttpContext.Session.GetObject<List<int>>("IDSEMPLEADOS");
+                }
+                idsEmpleados.Add(idEmpleado.Value);
+                //REFRESCAMOS LOS DATOS DE SESSION
+                HttpContext.Session.SetObject("IDSEMPLEADOS", idsEmpleados);
+                ViewData["MENSAJE"] = "Empleados almacenados: " + idsEmpleados.Count;
+            }
+            List<Empleado> empleados = await this.repo.GetEmpleadosAsync();
+            return View(empleados);
+        }
+
+        public async Task<IActionResult> EmpleadosAlmacenadosV5(int? idEmpleado)
+        {
+            List<int> idsEmpleados = HttpContext.Session.GetObject<List<int>>("IDSEMPLEADOS");
+            if (idEmpleado.HasValue && idsEmpleados.Contains(idEmpleado.Value))
+            {
+                idsEmpleados.Remove(idEmpleado.Value);
+                HttpContext.Session.SetObject("IDSEMPLEADOS", idsEmpleados);
+            }
+            if (idsEmpleados == null || !idsEmpleados.Any())
+            {
+                ViewData["MENSAJE"] = "No existen empleados almacenados en Session.";
+                return View();
+            }
+            List<Empleado> empleados = await this.repo.GetEmpleadosSessionAsync(idsEmpleados);
+            return View(empleados);
         }
     }
 }

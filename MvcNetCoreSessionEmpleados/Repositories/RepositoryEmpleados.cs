@@ -7,6 +7,7 @@ namespace MvcNetCoreSessionEmpleados.Repositories
     public class RepositoryEmpleados
     {
         private HospitalContext context;
+
         public RepositoryEmpleados(HospitalContext context)
         {
             this.context = context;
@@ -16,7 +17,6 @@ namespace MvcNetCoreSessionEmpleados.Repositories
         {
             var consulta = from datos in this.context.Empleados select datos;
             return await consulta.ToListAsync();
-
         }
 
         public async Task<Empleado> FindEmpleadoAsync(int idEmpleado)
@@ -27,8 +27,7 @@ namespace MvcNetCoreSessionEmpleados.Repositories
 
         public async Task<List<Empleado>> GetEmpleadosSessionAsync(List<int> ids)
         {
-            var consulta = from datos in this.context.Empleados where ids.Contains(datos.IdEmpleado)
-                           select datos;
+            var consulta = from datos in this.context.Empleados where ids.Contains(datos.IdEmpleado) select datos;
             if (consulta.Count() == 0)
             {
                 return null;
@@ -41,8 +40,7 @@ namespace MvcNetCoreSessionEmpleados.Repositories
 
         public async Task<List<Empleado>> GetEmpleadosNotSessionAsync(List<int> ids)
         {
-            var consulta = from datos in this.context.Empleados where ids.Contains(datos.IdEmpleado) == false
-                           select datos;
+            var consulta = from datos in this.context.Empleados where ids.Contains(datos.IdEmpleado) == false select datos;
             if (consulta.Count() == 0)
             {
                 return null;

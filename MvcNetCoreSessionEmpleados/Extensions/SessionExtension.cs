@@ -10,7 +10,6 @@ namespace MvcNetCoreSessionEmpleados.Extensions
             session.SetString(key, json);
         }
 
-
         public static T GetObject<T>(this ISession session, string key)
         {
             string data = session.GetString(key);
