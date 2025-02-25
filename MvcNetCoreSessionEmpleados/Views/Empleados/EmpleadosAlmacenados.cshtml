@@ -1,0 +1,50 @@
+﻿@{
+    List<Empleado> empleados = Context.Session.GetObject<List<Empleado>>("EMPLEADOS");
+}
+
+@{
+    ViewData["Title"] = "EmpleadosAlmacenados";
+}
+
+<h1>Empleados Almacenados Session</h1>
+
+<p>
+    <a asp-controller="Empleados" asp-action="SessionEmpleados">Volver a almacenar empleados</a>
+</p>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            
+            <th>
+               Apellido
+            </th>
+            <th>
+                Oficio
+            </th>
+            <th>
+                Salario
+            </th>
+            <th>
+                IdDepartamento
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in empleados) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Apellido)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Oficio)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Salario)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdDepartamento)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
