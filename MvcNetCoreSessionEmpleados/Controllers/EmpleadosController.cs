@@ -178,8 +178,9 @@ namespace MvcNetCoreSessionEmpleados.Controllers
                 if (this.memoryCache.Get("FAVORITOS") == null)
                 {
                     //NO EXISTEN, CREAMOS LA COLECCION DE FAVORITOS
-                    empleadosFavoritos = new List<Empleado>();   
-                } else
+                    empleadosFavoritos = new List<Empleado>();
+                }
+                else
                 {
                     //RECUPERAMOS LOS EMPLEADOS QUE TENEMOS EN LA COLEECION DE FAVORITOS DE CACHE
                     empleadosFavoritos = this.memoryCache.Get<List<Empleado>>("FAVORITOS");
@@ -264,19 +265,36 @@ namespace MvcNetCoreSessionEmpleados.Controllers
             }
         }
 
-        public IActionResult EmpleadosFavoritos()
+        public IActionResult EmpleadosFavoritos(int? ideliminar)
         {
-            //PREGUNTAMOS SI EXISTEN FAVORITOS
-            if (this.memoryCache.Get("FAVORITOS") == null)
-            {
-                ViewData["MENSAJE"] = "No existen fvaoritos almacenados";
-                return View();
-            }
-            else
+            if (ideliminar != null)
             {
                 List<Empleado> favoritos = this.memoryCache.Get<List<Empleado>>("FAVORITOS");
-                return View(favoritos);
+                //BUSCAMOS AL EMPLEADO A ELIMINAR DENTRO DE LA COLECCION DE FAVORITOS
+                Empleado empDelete = favoritos.Find(z => z.IdEmpleado == ideliminar.Value);
+                favoritos.Remove(empDelete);
+                if (favoritos.Count == 0)
+                {
+                    this.memoryCache.Remove("FAVORITOS");
+                }
+                else
+                {
+                    this.memoryCache.Set("FAVORITOS", favoritos);
+                }
+
             }
+            return View();
+            ////PREGUNTAMOS SI EXISTEN FAVORITOS
+            //if (this.memoryCache.Get("FAVORITOS") == null)
+            //{
+            //    ViewData["MENSAJE"] = "No existen fvaoritos almacenados";
+            //    return View();
+            //}
+            //else
+            //{
+            //    List<Empleado> favoritos = this.memoryCache.Get<List<Empleado>>("FAVORITOS");
+            //    return View(favoritos);
+            //}
         }
     }
 }

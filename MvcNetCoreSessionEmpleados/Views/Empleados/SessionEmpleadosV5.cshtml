@@ -1,47 +1,93 @@
 ﻿@model List<Empleado>
 
 @{
-    //NECESITAMOS SESSION PARA SABER EL DIBUJO A REALIZAR
-    List<int> ids = Context.Session.GetObject<List<int>>("IDSEMPLEADOS");
+	//NECESITAMOS SESSION PARA SABER EL DIBUJO A REALIZAR
+	List<int> ids = Context.Session.GetObject<List<int>>("IDSEMPLEADOS");
+
+	//NECESITAMOS MEMORYCACHE PARA LOS DIBUJOS
+	List<Empleado> favoritos = memoryCache.Get<List<Empleado>>("FAVORITOS");
 }
 
 <h1 style="color:blue">Session Empleados V5</h1>
 
+@if (ids != null)
+{
+	<h3 style="background-color:blue; color:white">Empleados Session: @ids.Count</h3>
+}
+
+@if (favoritos != null)
+{
+	<h3 style="background-color:lightblue">Favoritos almacenados: @favoritos.Count</h3>
+}
+
 <p>
-    <a asp-controller="Empleados" asp-action="EmpleadosAlmacenadosV5">
-        Empleados Almacenados V5
-    </a>
+	<a asp-controller="Empleados" asp-action="EmpleadosAlmacenadosV5">
+		Empleados Almacenados V5
+	</a>
 </p>
 
 <h4>@ViewData["MENSAJE"]</h4>
 
 <ul class="list-group">
-    @foreach (Empleado empleado in Model)
-    {
-        <li class="list-group-item list-group-item-info">
-            @empleado.Apellido
-            <a class="btn btn-danger" asp-controller="Empleados" asp-action="SessionEmpleadosV5" asp-route-idfavorito="@empleado.IdEmpleado">Favorito</a>
-            @* PREGUNTAMOS SI EXISTE SESSION *@
-            @if (ids == null) {
-                <a asp-controller="Empleados"
-                   asp-action="SessionEmpleadosV5"
-                   asp-route-idempleado="@empleado.IdEmpleado">
-                    Almacenar empleado
-                </a>
-            }else{
-                //PREGUNTAMOS SI EL EMPLEADO QUE ESTAMOS DIBUJANDO ESTA DENTRO DE SESSION
-                if (ids.Contains(empleado.IdEmpleado))
-                {
-                    //DIBUJAMOS LA IMAGEN
-                    <img src="~/images/ok.jpg" style="width:35px; height: 35px"/>
-                }else{
-                    <a asp-controller="Empleados"
-                       asp-action="SessionEmpleadosV5"
-                       asp-route-idempleado="@empleado.IdEmpleado">
-                        Almacenar empleado
-                    </a>
-                }
-            }
-        </li>
-    }
+	@foreach (Empleado empleado in Model)
+	{
+		<li class="list-group-item list-group-item-info">
+			@empleado.Apellido
+
+			@if (favoritos == null)
+			{
+				<a asp-controller="Empleados"
+				   asp-action="SessionEmpleadosV5"
+				   asp-route-idfavorito="@empleado.IdEmpleado" class="btn btn-danger">
+					Favorito
+				</a>
+			}
+			else
+			{
+				//DEBEMOS PREGUNTAR SI EXISTE NUESTRO EMPLEADO
+				//CON EL ID QUE ESTAMOS RECORRIENDO DENTRO DE LA COLECCION
+				Empleado empFavorito = favoritos.Find(x => x.IdEmpleado == empleado.IdEmpleado);
+				if (empFavorito != null)
+				{
+					<img src="~/images/love.jpg" style="width:35px; height:35px" />
+				}
+				else
+				{
+					<a asp-controller="Empleados"
+					   asp-action="SessionEmpleadosV5"
+					   asp-route-idfavorito="@empleado.IdEmpleado" class="btn btn-danger">
+					   Favorito
+					</a>
+				}
+			}
+
+			
+			@* PREGUNTAMOS SI EXISTE SESSION *@
+			@if (ids == null)
+			{
+				<a asp-controller="Empleados"
+				   asp-action="SessionEmpleadosV5"
+				   asp-route-idempleado="@empleado.IdEmpleado" >
+					Almacenar empleado
+				</a>
+			}
+			else
+			{
+				//PREGUNTAMOS SI EL EMPLEADO QUE ESTAMOS DIBUJANDO ESTA DENTRO DE SESSION
+				if (ids.Contains(empleado.IdEmpleado))
+				{
+					//DIBUJAMOS LA IMAGEN
+					<img src="~/images/ok.jpg" style="width:35px; height: 35px" />
+				}
+				else
+				{
+					<a asp-controller="Empleados"
+					   asp-action="SessionEmpleadosV5"
+					   asp-route-idempleado="@empleado.IdEmpleado">
+						Almacenar empleado
+					</a>
+				}
+			}
+		</li>
+	}
 </ul>
