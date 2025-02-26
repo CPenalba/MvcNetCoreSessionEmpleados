@@ -166,9 +166,9 @@ namespace MvcNetCoreSessionEmpleados.Controllers
             }
         }
 
+        //[ResponseCache(Duration = 80, Location = ResponseCacheLocation.Client)]
         public async Task<IActionResult> SessionEmpleadosV5(int? idEmpleado)
         {
-
             if (idEmpleado != null)
             {
                 //ALMACENAREMOS LO MINIMO QUE PODAMOS (int)
@@ -192,21 +192,54 @@ namespace MvcNetCoreSessionEmpleados.Controllers
             return View(empleados);
         }
 
-        public async Task<IActionResult> EmpleadosAlmacenadosV5(int? idEmpleado)
+        //public async Task<IActionResult> EmpleadosAlmacenadosV5(int? idEmpleado)
+        //{
+        //    List<int> idsEmpleados = HttpContext.Session.GetObject<List<int>>("IDSEMPLEADOS");
+        //    if (idEmpleado.HasValue && idsEmpleados.Contains(idEmpleado.Value))
+        //    {
+        //        idsEmpleados.Remove(idEmpleado.Value);
+        //        HttpContext.Session.SetObject("IDSEMPLEADOS", idsEmpleados);
+        //    }
+        //    if (idsEmpleados == null || !idsEmpleados.Any())
+        //    {
+        //        ViewData["MENSAJE"] = "No existen empleados almacenados en Session.";
+        //        return View();
+        //    }
+        //    List<Empleado> empleados = await this.repo.GetEmpleadosSessionAsync(idsEmpleados);
+        //    return View(empleados);
+        //}
+
+        //[ResponseCache(Duration = 80, Location = ResponseCacheLocation.Client)]
+        public async Task<IActionResult> EmpleadosAlmacenadosV5(int? idEliminar)
         {
+            //DEBEMOS RECUPERAR LOS IDS DE EMPLEADOS QUE TENGAMOS EN SESSION
             List<int> idsEmpleados = HttpContext.Session.GetObject<List<int>>("IDSEMPLEADOS");
-            if (idEmpleado.HasValue && idsEmpleados.Contains(idEmpleado.Value))
+            if (idsEmpleados == null)
             {
-                idsEmpleados.Remove(idEmpleado.Value);
-                HttpContext.Session.SetObject("IDSEMPLEADOS", idsEmpleados);
-            }
-            if (idsEmpleados == null || !idsEmpleados.Any())
-            {
-                ViewData["MENSAJE"] = "No existen empleados almacenados en Session.";
+                ViewData["MENSAJE"] = "No existen empleados almacenados " + " en Session.";
                 return View();
             }
-            List<Empleado> empleados = await this.repo.GetEmpleadosSessionAsync(idsEmpleados);
-            return View(empleados);
+            else
+            {
+                //PREGUNTAMOS SI HEMOS RECIBIDO ALGUN VALOR PARA ELIMINAR
+                if (idEliminar != null)
+                {
+                    idsEmpleados.Remove(idEliminar.Value);
+                    //ES POSIBLE QUE YA NO TENGAMOS EMPLEADOS EN SESSION
+                    if (idsEmpleados.Count == 0)
+                    {
+                        //ELIMINAMOS DE SESSION NUESTRA KEY
+                        HttpContext.Session.Remove("IDSEMPLEADOS");
+                    }
+                    else
+                    {
+                        //ACTUALIZAMOS SESSION CON EL EMPLEADO YA ELIMINADO
+                        HttpContext.Session.SetObject("IDSEMPLEADOS", idsEmpleados);
+                    }
+                }
+                List<Empleado> empleados = await this.repo.GetEmpleadosSessionAsync(idsEmpleados);
+                return View(empleados);
+            }
         }
     }
 }
